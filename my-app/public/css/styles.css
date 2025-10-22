@@ -1,0 +1,20 @@
+:root{
+  --emerald: #2E8B57;
+  --amber: #FFD700;
+  --brown: #8B4513;
+  --text: #333333;
+  --muted: #666666;
+  --paper: #F7F7F7;
+}
+body.bg-paper{ background-color: var(--paper); font-family: 'Montserrat', sans-serif; color: var(--text); }
+.brand-title{ font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight:700; color:var(--brown); }
+.logo{ width:48px; height:48px; border-radius:8px; object-fit:cover; }
+.btn-emerald{ background: var(--emerald); color: white; border: none; }
+.btn-emerald:hover{ opacity: .9; }
+.hero{ background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.6)); }
+.card-feature{ border: none; }
+.text-amber{ color: var(--amber); font-weight:700; }
+small.text-muted{ color: var(--muted); }
+.product-card img{ height:180px; object-fit:cover; border-radius:8px; }
+.rating{ color: var(--amber); }
+.footer-small{ font-size:0.9rem; color:var(--muted); }
