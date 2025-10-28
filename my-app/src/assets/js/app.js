@@ -1,5 +1,6 @@
 import RouterConfig from "../../routes/RouterConfig";
-
+import Blog from './components/Blog';
+<Route path="/blog" element={<Blog user={user} />} />
 function renderProducts(filter = '', search = ''){
     const container = document.getElementById('products');
     if(!container) return;

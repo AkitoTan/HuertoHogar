@@ -20,5 +20,16 @@ const Checkout = ({ cart, user }) => {
     </button>
   );
 };
+const handleCheckout = async () => {
+  if (!user?.uid) return;
+  await updateDoc(doc(db, "usuarios", user.uid), { descuentoDisponible: true });
+};
+
+
+if (userData?.descuentoDisponible) {
+  // Muestra un banner: "¡Tienes un descuento!"
+  // Aplica el descuento en el total
+}
+await updateDoc(doc(db, "usuarios", user.uid), { descuentoDisponible: false });
 
 export default Checkout;

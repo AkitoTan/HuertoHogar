@@ -1,41 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../config/firebase";
+import React, { useState } from "react";
 
-const ProductFilter = () => {
-  const [products, setProducts] = useState([]);
+const ProductFilter = ({ allProducts, onAddToCart }) => {
   const [filter, setFilter] = useState("");
+  const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      let q = collection(db, "productos");
-      if (filter) {
-        q = query(q, where("categoria", "==", filter));
-      }
-      const snap = await getDocs(q);
-      setProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    };
-    fetchProducts();
-  }, [filter]);
+  const filtered = allProducts
+    .filter(p => !filter || p.category === filter)
+    .filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div>
-      <h2>Filtrar productos</h2>
-      <select onChange={e => setFilter(e.target.value)} value={filter}>
-        <option value="">Todos</option>
+      <input
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        placeholder="Buscar..."
+      />
+      <select value={filter} onChange={e => setFilter(e.target.value)}>
+        <option value="">Todas</option>
         <option value="Frutas">Frutas</option>
-        <option value="Verduras">Verduras</option>
-        <option value="Otro">Otro</option>
+        {/* más categorías si lo necesitas */}
       </select>
-      <ul>
-        {products.map(prod => (
-          <li key={prod.id}>
-            <b>{prod.name}</b> | <span>{prod.categoria}</span> | ${prod.price}
-          </li>
+      <div>
+        {filtered.map(prod => (
+          <div key={prod.id}>
+            <b>{prod.name}</b>
+            <span>{prod.category}</span>
+            <button onClick={() => onAddToCart(prod.id, 1)}>Agregar</button>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
-
 export default ProductFilter;

@@ -1,5 +1,4 @@
-const Button = ({Children, ...props}) =>(
-    <button{...props} className="btn btn-primary">{children}</button>
+const Button = ({ children, ...props }) => (
+  <button {...props}>{children}</button>
 );
-
 export default Button;

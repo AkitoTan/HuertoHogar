@@ -1,44 +1,41 @@
-import React,{useState} from "react";
-import Input from "../atoms/Input";
-import Button from "../atoms/Button";
-import {validarRun, validarCorreo, validarMayoriaEdad} from "../../utils/validaciones";
-import { addUser } from "../../services/firestoreService";
-import {useHistory} from "react-router-dom";
+import React, { useState } from "react";
 
-const Userform = () =>{
-    const [form,setForm] = useState({run:"",nombre:"",correo:"",clave:"",fecha:""});
-    const [msg, setMsg] = useState("");
-    const history = useHistory();
+const UserForm = ({ onSubmit }) => {
+  const [run, setRun] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [clave, setClave] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [mensaje, setMensaje] = useState("");
 
-    const handleChange = e => setForm({ ...form,[e.target.id]: e.target.value });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMensaje(""); // Limpia mensaje previo
 
-    const handleSubmit = async e => {
-        e.preventDefault();
+    // Valida datos aquí, usando tus funciones de validación JS
+    if (!run) return setMensaje("RUN incorrecto");
+    if (!nombre) return setMensaje("Nombre vacío");
+    // ... otras validaciones
 
-        const {run,nombre,correo,clave,fecha } = form;
-        if(!validarRun(run)) return setMsg("RUN Incorrecto");
-        if(!nombre) return setMsg("Nombre en Blanco");
-        if(!validarCorreo(correo)) return setMsg("COrreo Incorrecto");
-        if(!validarMayoriaEdad(fecha)) return setMsg("Debe ser mayor de 18 años");
+    try {
+      await onSubmit({ run, nombre, correo, clave, fecha });
+      setMensaje("Formulario enviado correctamente!");
+    } catch (error) {
+      setMensaje("Error al enviar el formulario");
+    }
+  };
 
-        await addUser(form);
-        setMsg("Formulario enviado correctamente");
-        setTimeout(()=>{
-            history.push(correo === "admin@duoc.cl" ? "/perfil-admin?nombre="+nombre : "/perfil-cliente?nombre="+nombre);
-        }, 1000);
-    };
-
-    return (
-        <frorm onSubmit={handleSubmit}>
-            <Input id="run" label="RUN" value={form.run} onChange={handleChange} required />
-            <Input id="nombre" label="Nombre" value={form.nombre} onChange={handleChange} required />
-            <Input id="correo" label="Correo" type="email" value={form.correo} onChange={handleChange} required />
-            <Input id="clave" label="Clave" type="password" value={form.clave} onChange={handleChange} required />
-            <Input id="fecha" label="Fecha de Nacimiento" type="date" value={form.fecha} onChange={handleChange} required />
-            <Button type="submit">Enviar</Button>
-            <p style={{color:"crimson"}}>{msg}</p>
-        </frorm>
-    );
+  return (
+    <form onSubmit={handleSubmit}>
+      <input value={run} onChange={e => setRun(e.target.value)} placeholder="RUN" />
+      <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre" />
+      <input value={correo} onChange={e => setCorreo(e.target.value)} placeholder="Correo" />
+      <input value={clave} type="password" onChange={e => setClave(e.target.value)} placeholder="Clave" />
+      <input value={fecha} type="date" onChange={e => setFecha(e.target.value)} placeholder="Fecha de nacimiento" />
+      <button type="submit">Registrar</button>
+      {mensaje && <p>{mensaje}</p>}
+    </form>
+  );
 };
 
 export default UserForm;
