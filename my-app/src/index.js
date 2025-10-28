@@ -1,5 +1,5 @@
-import { addUser } from "../public/services/firestoreService";
-import { validarCorreo, validarRun, validarFechaNacimiento} from "./utils/validaciones"
+import { addUser } from "../src/services/firestoreService";
+import { validarCorreo, validarRUN, validarFechaNacimiento} from "./utils/validaciones"
 
 document.addEventListener("DOMContentLoaded",() =>{
   const form = document.getElementById("formUsuario");
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded",() =>{
       const clave = claveInput.value;
       const fecha = fechaInput.value;
 
-      if(!validarRun(run)) return mensaje.innerText = "Run incorrecto"
+      if(!validarRUN(run)) return mensaje.innerText = "Run incorrecto"
       if(!nombre(nombre)) return mensaje.innerText = "Nombre en blanco"
       if(!validarCorreo(correo)) return mensaje.innerText = "Correo incorrecto"
       if(!validarFechaNacimiento(fecha)) return mensaje.innerText = "Debe ser mayor de 18 años"

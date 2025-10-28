@@ -1,7 +1,6 @@
-// js/validaciones.js
 import { normalizeString, cleanRut, rutDV, diffYearsFromToday, result } from './utils.js';
 
-// Valida RUN/RUT chileno: estructura y dígito verificador
+// Valida RUN/RUT: estructura y dígito verificador
 export function validarRUN(rutInput) {
   const c = cleanRut(rutInput);
   if (c.length < 2) return result(false, 'RUT incompleto');
@@ -31,7 +30,6 @@ export function validarNombre(nombre) {
 // Valida correo con patrón razonable
 export function validarCorreo(email) {
   const e = String(email).trim();
-  // Patrón RFC5322 simplificado
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
   if (!re.test(e)) return result(false, 'Correo electrónico inválido');
   return result(true, 'Correo válido', e.toLowerCase());
@@ -44,8 +42,6 @@ export function validarClave(password) {
   if (!/[a-z]/.test(p)) return result(false, 'Debe incluir al menos una minúscula');
   if (!/[A-Z]/.test(p)) return result(false, 'Debe incluir al menos una mayúscula');
   if (!/\d/.test(p)) return result(false, 'Debe incluir al menos un número');
-  // opcional: símbolo
-  // if (!/[^\w\s]/.test(p)) return result(false, 'Debe incluir al menos un símbolo');
   return result(true, 'Clave válida');
 }
 
