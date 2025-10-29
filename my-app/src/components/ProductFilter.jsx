@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const ProductFilter = ({ allProducts, onAddToCart }) => {
+const ProductFilter = ({ allProducts = [], onAddToCart }) => {
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");
 
@@ -10,25 +10,20 @@ const ProductFilter = ({ allProducts, onAddToCart }) => {
 
   return (
     <div>
-      <input
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        placeholder="Buscar..."
-      />
+      <h2>Catálogo de Productos</h2>
+      <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar..." />
       <select value={filter} onChange={e => setFilter(e.target.value)}>
         <option value="">Todas</option>
         <option value="Frutas">Frutas</option>
-        {/* más categorías si lo necesitas */}
+        <option value="Verduras">Verduras</option>
       </select>
-      <div>
-        {filtered.map(prod => (
-          <div key={prod.id}>
-            <b>{prod.name}</b>
-            <span>{prod.category}</span>
-            <button onClick={() => onAddToCart(prod.id, 1)}>Agregar</button>
-          </div>
-        ))}
-      </div>
+      {filtered.length === 0 && <p>No hay productos.</p>}
+      {filtered.map(prod => (
+        <div key={prod.id}>
+          <b>{prod.name}</b> <span>({prod.category})</span>
+          <button onClick={() => onAddToCart(prod.id, 1)}>Agregar</button>
+        </div>
+      ))}
     </div>
   );
 };
