@@ -1,6 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
+
+const CUPONES = {
+  VERDE10: 0.10,
+  CAMPO15: 0.15
+};
 
 const Cart = ({ carrito, productos, onRemove, onChangeQty, handleCheckout }) => {
+  const [cup, setCup] = useState("");
+  const [cupFeedback, setCupFeedback] = useState("");
+  const [descuento, setDescuento] = useState(0);
 
   const getDetails = item => productos.find(p => p.id === item.id) || {};
 
@@ -8,6 +16,20 @@ const Cart = ({ carrito, productos, onRemove, onChangeQty, handleCheckout }) => 
     const prod = getDetails(item);
     return acc + ((prod.precio || 0) * item.qty);
   }, 0);
+
+  // Calcular descuento por cupón ingresado
+  const totalDescuento = total - Math.round(total * descuento);
+
+  const aplicarCupon = () => {
+    const cupValido = CUPONES[cup.trim().toUpperCase()];
+    if (cupValido) {
+      setDescuento(cupValido);
+      setCupFeedback(`¡Cupón aplicado: -${cupValido * 100}%!`);
+    } else {
+      setDescuento(0);
+      setCupFeedback("Cupón no válido");
+    }
+  };
 
   return (
     <div style={{
@@ -43,8 +65,41 @@ const Cart = ({ carrito, productos, onRemove, onChangeQty, handleCheckout }) => 
       })}
       {carrito.length > 0 && (
         <>
+          {/* Campo cupón descuento */}
+          <div style={{ marginTop: 18, marginBottom: 9 }}>
+            <label>
+              <b>Cupón de descuento:</b>
+              <br />
+              <input
+                type="text"
+                value={cup}
+                onChange={e => setCup(e.target.value)}
+                placeholder="Ingresa tu cupón (VERDE10, CAMPO15)"
+                style={{ fontSize: 15, padding: "8px 12px", borderRadius: 6, marginRight: 10, marginTop: 6, border: "1px solid #C0C090" }}
+              />
+              <button
+                style={{
+                  background: "#2E8B57", color: "#fff", border: "none",
+                  padding: "6px 14px", borderRadius: 6, marginLeft: 8, cursor: "pointer"
+                }}
+                onClick={aplicarCupon}
+              >
+                Aplicar
+              </button>
+            </label>
+            {cupFeedback &&
+              <div style={{ marginTop: 7, color: descuento ? "#2E8B57" : "darkred", fontWeight: "bold" }}>
+                {cupFeedback}
+              </div>
+            }
+          </div>
           <div style={{ padding: "18px 0", fontWeight: "bold", fontSize: 18 }}>
             Total: <span style={{ color: "#2E8B57" }}>{total.toLocaleString()} CLP</span>
+            {descuento > 0 &&
+              <span style={{ color: "#FFD700", marginLeft: 15 }}>
+                → Con descuento: {totalDescuento.toLocaleString()} CLP
+              </span>
+            }
           </div>
           <button
             style={{

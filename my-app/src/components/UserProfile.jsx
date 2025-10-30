@@ -2,15 +2,20 @@ import React, { useState, useEffect, useRef } from "react";
 import { auth, db, doc, getDoc, updateDoc } from "../config/firebase";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-const DEFAULT_AVATAR = "/img/avatar-default.png"; // pon una imagen por defecto en public/img/
+const DEFAULT_AVATAR = "/img/avatar-default.png";
 
 const UserProfile = () => {
-  const [profile, setProfile] = useState({ name: "", email: "", avatar: "" });
+  const [profile, setProfile] = useState({
+    name: "",
+    email: "",
+    avatar: "",
+    direccion: "",
+    telefono: ""
+  });
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef();
-
   const user = auth.currentUser;
 
   useEffect(() => {
@@ -22,10 +27,18 @@ const UserProfile = () => {
           setProfile({
             name: data.name || "",
             email: data.email || user.email,
-            avatar: data.avatar || DEFAULT_AVATAR
+            avatar: data.avatar || DEFAULT_AVATAR,
+            direccion: data.direccion || "",
+            telefono: data.telefono || ""
           });
         })
-        .catch(() => setProfile({ name: "", email: user.email, avatar: DEFAULT_AVATAR }));
+        .catch(() => setProfile({
+          name: "",
+          email: user.email,
+          avatar: DEFAULT_AVATAR,
+          direccion: "",
+          telefono: ""
+        }));
     }
   }, [user]);
 
@@ -41,7 +54,9 @@ const UserProfile = () => {
       await updateDoc(doc(db, "usuarios", user.uid), {
         name: profile.name,
         email: profile.email,
-        avatar: profile.avatar
+        avatar: profile.avatar,
+        direccion: profile.direccion,
+        telefono: profile.telefono
       });
       setSaved(true);
       setError("");
@@ -73,7 +88,8 @@ const UserProfile = () => {
 
   return (
     <div style={{
-      maxWidth: 400, margin: "40px auto", padding: 30, background: "#fff", borderRadius: 10, boxShadow: "0 2px 8px #ddd"
+      maxWidth: 400, margin: "40px auto", padding: 30,
+      background: "#fff", borderRadius: 10, boxShadow: "0 2px 8px #ddd"
     }}>
       <h2 style={{ color: "#8B4513" }}>Perfil de Usuario</h2>
       <div style={{ textAlign: "center" }}>
@@ -102,11 +118,21 @@ const UserProfile = () => {
       </div>
       <label>Nombre:<br />
         <input type="text" name="name" value={profile.name} onChange={handleChange}
-          style={{ padding: 8, width: "100%", marginBottom: 10 }}/>
+          style={{ padding: 8, width: "100%", marginBottom: 10 }} />
       </label>
       <label>Email:<br />
-        <input type="email" name="email" value={profile.email} onChange={handleChange}
-          disabled style={{ padding: 8, width: "100%", marginBottom: 10 }}/>
+        <input type="email" name="email" value={profile.email} disabled
+          style={{ padding: 8, width: "100%", marginBottom: 10 }} />
+      </label>
+      <label>Dirección:<br />
+        <input type="text" name="direccion" value={profile.direccion}
+          onChange={handleChange}
+          style={{ padding: 8, width: "100%", marginBottom: 10 }} />
+      </label>
+      <label>Teléfono:<br />
+        <input type="text" name="telefono" value={profile.telefono}
+          onChange={handleChange}
+          style={{ padding: 8, width: "100%", marginBottom: 10 }} />
       </label>
       <div>
         Verificación:{" "}

@@ -3,8 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import ProductFilter from "./components/ProductFilter";
-import Login from "./components/Login";
-import Register from "./components/Register";
+import Auth from "./components/Auth"; // nuevo componente
 import Cart from "./components/Cart";
 import Home from "./components/pages/Home";
 import { collection, addDoc, db, auth } from "./config/firebase";
@@ -12,24 +11,17 @@ import OrderHistory from "./components/OrderHistory";
 import Condiciones from "./components/pages/Condiciones";
 import UserProfile from "./components/UserProfile"
 
-
+// Puedes agregar otros componentes/rutas aquí...
 
 const AdminOrders = () => <div>Admin Pedidos (pendiente implementación)</div>;
 
-
 const productos = [
-  { id: "FR001", name: "Manzanas Fuji", category: "Frutas Frescas", precio: 1200, stock: 150, img:"/img/manzana.webp"},
-  { id: "FR002", name: "Naranjas Valencia", category: "Frutas Frescas", precio: 1000, stock: 200 , img:"/img/naranjas.webp"},
-  { id: "FR003", name: "Plátanos Cavendish", category: "Frutas Frescas", precio: 800, stock: 250 , img:"/img/platano.webp"},
-  { id: "VR001", name: "Zanahorias Orgánicas", category: "Verduras Orgánicas", precio: 900, stock: 100 , img:"/img/zanahoria.webp"},
-  { id: "VR002", name: "Espinacas Frescas", category: "Verduras Orgánicas", precio: 700, stock: 80, img:"/img/espinaca.jpg" },
-  { id: "VR003", name: "Pimientos Tricolores", category: "Verduras Orgánicas", precio: 1500, stock: 120 , img:"/img/pimientos.jpg"},
-  { id: "PO001", name: "Miel Orgánica", category: "Productos Orgánicos", precio: 5000, stock: 50, img:"/img/miel.jpg" }
+  // ... Tu array completo de productos ...
 ];
 
 function App() {
   const [user, setUser] = useState(null);
-   useEffect(() => {
+  useEffect(() => {
     const listener = onAuthStateChanged(auth, setUser);
     return () => listener();
   }, []);
@@ -74,12 +66,11 @@ function App() {
       <Navbar user={user} />
       <Routes>
         <Route path="/" element={<Home user={user} />} />
-        <Route path="/productos" element={<ProductFilter allProducts={productos} onAddToCart={handleAddToCart} />} />
-         <Route path="/login" element={<Login onLogin={setUser} />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/catalogo" element={<ProductFilter allProducts={productos} onAddToCart={handleAddToCart} />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/perfil" element={<UserProfile />} />
-        <Route path="/compras" element={<OrderHistory productos={productos} />} />
-        <Route path="/carrito" element={
+        <Route path="/historial" element={<OrderHistory productos={productos} />} />
+        <Route path="/cart" element={
           <Cart
             carrito={carrito}
             productos={productos}
@@ -90,6 +81,7 @@ function App() {
         } />
         <Route path="/admin/orders" element={<AdminOrders />} />
         <Route path="/condiciones" element={<Condiciones />} />
+        {/* Añade aquí cualquier otra ruta */}
       </Routes>
     </Router>
   );
