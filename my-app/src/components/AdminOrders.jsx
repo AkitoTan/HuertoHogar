@@ -1,50 +1,64 @@
-import React, { useEffect, useState } from 'react';
-import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
-import { db } from "../config/firebase";
-import { FaHourglass, FaTruck, FaCheckCircle } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { auth, db, collection, getDocs, updateDoc, doc } from "../config/firebase";
 
-const statusList = ["En preparación", "En reparto", "Entregado"];
-const statusIcons = { "En preparación": <FaHourglass />, "En reparto": <FaTruck />, "Entregado": <FaCheckCircle /> };
+const estados = ["Solicitado", "En preparación", "Enviado", "Entregado", "Cancelado"];
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
+  const [admin, setAdmin] = useState(false);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      const snap = await getDocs(collection(db, "orders"));
-      setOrders(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    };
-    fetchOrders();
+    // Asegura sólo acceso admin por el email
+    setAdmin(auth.currentUser?.email === "admin@duoc.cl");
+    const pedidosRef = collection(db, "pedidos");
+    getDocs(pedidosRef).then(snapshot => {
+      setOrders(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
   }, []);
 
-  const handleStatusChange = async (orderId, newStatus) => {
-    await updateDoc(doc(db, "orders", orderId), { status: newStatus });
-    setOrders(orders =>
-      orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o)
+  const handleChangeEstado = async (orderId, newEstado) => {
+    await updateDoc(doc(db, "pedidos", orderId), { estado: newEstado });
+    setOrders(prev =>
+      prev.map(order =>
+        order.id === orderId ? { ...order, estado: newEstado } : order
+      )
     );
   };
 
+  if (!admin) return <div>No tienes permisos para ver este módulo.</div>;
+
   return (
-    <div>
-      <h2>Gestión de Pedidos (admin)</h2>
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {orders.map(ord => (
-          <li key={ord.id} style={{ marginBottom: "2rem", border: "1px solid #eee", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 8px #eee" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: ".5rem" }}>
-              <span style={{ fontSize: "2rem" }}>{statusIcons[ord.status] || null}</span>
-              <span style={{ fontWeight: "bold", color: "#333" }}>{ord.status || "Pendiente"}</span>
-              <select value={ord.status || statusList[0]} onChange={e => handleStatusChange(ord.id, e.target.value)}>
-                {statusList.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-            <div><b>Pedido:</b> {ord.id}</div>
-            <div><b>Cliente:</b> {ord.userId}</div>
-            <div><b>Fecha:</b> {ord.date.toDate ? ord.date.toDate().toLocaleString() : String(ord.date)}</div>
-            <div><b>Total:</b> ${ord.total}</div>
-            <div><b>Productos:</b> {ord.products.map(pr => `${pr.name} x${pr.qty}`).join(', ')}</div>
-          </li>
-        ))}
-      </ul>
+    <div style={{
+      maxWidth: 700, margin: "40px auto", background: "#fff", padding: 24, borderRadius: 8, boxShadow: "0 2px 8px #bbb"
+    }}>
+      <h2 style={{ color: "#FFD700" }}>Panel de Pedidos Administrador</h2>
+      {orders.length === 0 && <p>No hay pedidos aún.</p>}
+      {orders.map(order => (
+        <div key={order.id} style={{
+          marginBottom: 25, borderBottom: "1px solid #eee", paddingBottom: 12
+        }}>
+          <div><b>Fecha:</b> {order.fecha}</div>
+          <div><b>Usuario:</b> {order.userId}</div>
+          <div>
+            <b>Estado:</b>
+            <select
+              value={order.estado || "Solicitado"}
+              onChange={e => handleChangeEstado(order.id, e.target.value)}
+              style={{ marginLeft: 10, padding: "4px 12px", borderRadius: 3, background: "#FFD700", color: "#8B4513", fontWeight: "bold" }}>
+              {estados.map(e => <option key={e} value={e}>{e}</option>)}
+            </select>
+          </div>
+          <div><b>Total:</b> <span style={{ color: "#2E8B57" }}>{order.total.toLocaleString()} CLP</span></div>
+          <div>
+            <b>Productos:</b>
+            <ul>
+              {order.items.map((item, idx) => (
+                <li key={idx}>{item.id} x{item.qty}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
