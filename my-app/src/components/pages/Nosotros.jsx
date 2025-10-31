@@ -1,80 +1,45 @@
 import React from "react";
 
-// Ubicaciones simuladas (puedes traerlas de Firestore si lo prefieres)
-const sucursales = [
-  { ciudad: "Santiago", direccion: "Av. Italia 500, Ñuñoa, RM" },
-  { ciudad: "Puerto Montt", direccion: "Carretera Austral 1234, Llanquihue" },
-  { ciudad: "Villarica", direccion: "Ruta 199, Fundo Verde, Araucanía" },
-  { ciudad: "Nacimiento", direccion: "Camino Campo Nuevo km 5" },
-  { ciudad: "Viña del Mar", direccion: "Av. Jardín Sur 441" },
-  { ciudad: "Valparaíso", direccion: "Calle Cerro Alegre 120" },
-  { ciudad: "Concepción", direccion: "Av. Prat 2219, BioBío" }
-];
-
 const Nosotros = () => (
   <div style={{
-    background: "url('/img/papel-reciclado-textura.jpg') repeat", minHeight: "100vh",
-    padding: "38px 0", fontFamily: "Montserrat, sans-serif"
+    background: "url('/img/papel-reciclado-textura.jpg') repeat",
+    minHeight: "100vh", padding: "38px 0"
   }}>
     <div style={{
       background: "#fff9eeeb", maxWidth: 950, margin: "auto",
       borderRadius: 16, boxShadow: "0 5px 28px #ccb", padding: 36
     }}>
       <h2 style={{
-        color: "#8B4513", fontFamily: 'Playfair Display, serif', marginBottom: "5px"
+        color: "#8B4513", fontFamily: 'Playfair Display, serif', marginBottom: "7px"
       }}>
-        Nosotros
+        Sobre Nosotros
       </h2>
-      <p style={{ color: "#333", maxWidth: 670 }}>
-        <strong>HuertoHogar</strong> conecta familias de Chile con productos frescos y sustentables,
-        directo del campo a tu mesa. Operamos en 7 ciudades clave, apoyando agricultores locales,
-        promoviendo salud, sostenibilidad y comunidad.
-      </p>
-      <h4 style={{ margin: "32px 0 7px 0", color: "#2E8B57" }}>Misión</h4>
-      <p>Proporcionar productos de calidad, apoyar prácticas responsables y acercar el campo a los hogares chilenos.</p>
-      <h4 style={{ margin: "16px 0 7px 0", color: "#2E8B57" }}>Visión</h4>
-      <p>Ser la tienda online líder en alimentación sostenible y saludable a nivel nacional.</p>
-      <h4 style={{ margin: "16px 0 7px 0", color: "#2E8B57" }}>Valores</h4>
-      <ul style={{ color: "#555", marginBottom: 27 }}>
-        <li>Compromiso con el medioambiente</li>
-        <li>Frescura y calidad</li>
-        <li>Justicia social y apoyo comunitario</li>
-        <li>Servicio transparente y cercano</li>
-      </ul>
-
-      <hr />
-
-      <div style={{ display: "flex", gap: 38, flexWrap: "wrap", alignItems: "flex-start" }}>
-        {/* Mapa con iframe Google Maps (puedes cambiar coords por la principal, ej: Santiago) */}
-        <div style={{ minWidth: 340 }}>
-          <h4 style={{ color: "#8B4513" }}>Mapa de Ubicaciones</h4>
-          <iframe
-            title="Mapa HuertoHogar"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3329.6815699915883!2d-70.61385104889838!3d-33.44994135136716!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662c5610be56f63%3A0x1842ce6b5285bdcf!2sAv.%20Italia%20500%2C%20%C3%91u%C3%B1oa%2C%20Regi%C3%B3n%20Metropolitana!5e0!3m2!1ses!2scl!4v1706730980383!5m2!1ses!2scl"
-            width="320"
-            height="220"
-            style={{ borderRadius: 10, border: "2px solid #8B4513" }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-          <ul style={{
-            fontSize: 15, color: "#6a5027",
-            marginTop: 16, paddingLeft: 18
-          }}>
-            {sucursales.map(s =>
-              <li key={s.ciudad}><b>{s.ciudad}:</b> {s.direccion}</li>
-            )}
-          </ul>
-        </div>
-        <div style={{ minWidth: 220 }}>
-          <h4 style={{ color: "#8B4513" }}>Contáctanos</h4>
-          <p><b>Email:</b> consultas@huertohogar.cl</p>
-          <p><b>Teléfono:</b> +56 9 8888 1717</p>
-          <p><b>Dirección principal:</b> Av. Italia 500, Ñuñoa, RM, Chile</p>
-          <p><b>Horario:</b> Lun a Vi 10-19h</p>
-        </div>
+      <div style={{
+        color: "#333", maxWidth: 700, fontSize: 17, marginBottom: 26, lineHeight: "1.7"
+      }}>
+        <p>
+          <strong>HuertoHogar</strong> es una tienda online dedicada a acercar productos frescos, saludables y sostenibles directamente desde el campo a tu mesa.
+        </p>
+        <ul>
+          <li>Apoyamos a productores rurales y fomentamos la agricultura local responsable.</li>
+          <li>Promovemos prácticas sustentables, con envases reciclables y transporte eficiente para reducir la huella de carbono.</li>
+          <li>Creemos en un comercio justo y en el impacto social: parte de las compras apoya talleres, cursos y donaciones comunitarias.</li>
+        </ul>
+        <p>
+          Nuestro equipo está comprometido con alimentarte mejor y conectar al país con una cadena más corta y humana.
+        </p>
+        <p>
+          ¿Quieres formar parte de la comunidad? Escríbenos a <a href="mailto:juntos@huertohogar.cl">juntos@huertohogar.cl</a>
+        </p>
       </div>
+      <h4 style={{ color: "#8B4513", marginTop: 32 }}>Sucursales de atención</h4>
+      <ul style={{
+        fontSize: 15, color: "#6a5027",
+        marginTop: 18, paddingLeft: 18
+      }}>
+        <li><b>Santiago:</b> Av. Providencia 1234, Providencia | Tel: +56 9 1234 5678</li>
+        <li><b>Concepción:</b> Barros Arana 789 | Tel: +56 41 245 1111</li>
+      </ul>
     </div>
   </div>
 );

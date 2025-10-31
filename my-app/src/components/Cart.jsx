@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const CUPONES = {
   VERDE10: 0.10,
@@ -9,15 +9,62 @@ const Cart = ({ carrito, productos, onRemove, onChangeQty, handleCheckout }) => 
   const [cup, setCup] = useState("");
   const [cupFeedback, setCupFeedback] = useState("");
   const [descuento, setDescuento] = useState(0);
+  const [localStocks, setLocalStocks] = useState({});
+  const [addMsg, setAddMsg] = useState("");
+
+  // Inicializa stock local
+  useEffect(() => {
+    setLocalStocks(productos.reduce((acc, prod) => {
+      acc[prod.id] = prod.stock;
+      return acc;
+    }, {}));
+  }, [productos]);
+
+  // Feedback agregado
+  useEffect(() => {
+    if (carrito.length > 0) {
+      setAddMsg("Producto agregado con éxito.");
+      setTimeout(() => setAddMsg(""), 1600);
+    }
+  }, [carrito.length, carrito]);
 
   const getDetails = item => productos.find(p => p.id === item.id) || {};
+
+  // Responsivamente descuenta stock según cantidad en carrito
+  useEffect(() => {
+    let stocks = { ...localStocks };
+    productos.forEach(prod => { stocks[prod.id] = prod.stock; });
+    carrito.forEach(item => {
+      if (stocks[item.id] !== undefined) stocks[item.id] -= item.qty;
+    });
+    setLocalStocks(stocks);
+  }, [carrito, productos]);
+
+  const handleQtyChange = (id, newQty) => {
+    // Solo permite sumar si hay stock suficiente
+    const prod = productos.find(p => p.id === id);
+    if (!prod) return;
+    const used = carrito.find(item => item.id === id)?.qty || 0;
+    const actualStock = prod.stock - used + used;
+    if (newQty <= prod.stock && newQty > 0) {
+      onChangeQty(id, newQty);
+      setAddMsg("Cantidad actualizada.");
+      setTimeout(() => setAddMsg(""), 1100);
+    }
+  };
+
+  const handleRemoveItem = (id) => {
+    // Devuelve stock al quitar
+    onRemove(id);
+    setAddMsg("Producto eliminado, stock devuelto.");
+    setTimeout(() => setAddMsg(""), 1100);
+  };
 
   const total = carrito.reduce((acc, item) => {
     const prod = getDetails(item);
     return acc + ((prod.precio || 0) * item.qty);
   }, 0);
 
-  // Calcular descuento por cupón ingresado
   const totalDescuento = total - Math.round(total * descuento);
 
   const aplicarCupon = () => {
@@ -36,25 +83,33 @@ const Cart = ({ carrito, productos, onRemove, onChangeQty, handleCheckout }) => 
       maxWidth: "600px", margin: "40px auto", padding: 24, background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #ddd"
     }}>
       <h2 style={{ color: "#2E8B57" }}>Carrito de Compras</h2>
+      {addMsg && <div style={{ color: "#2E8B57", fontWeight: "bold", marginBottom: 12 }}>{addMsg}</div>}
       {carrito.length === 0 && <p>No hay productos en el carrito.</p>}
       {carrito.map((item, i) => {
         const prod = getDetails(item);
+        const stockRemaining = localStocks[prod.id] + item.qty; // Stock total menos lo en carrito
         return (
           <div key={prod.id} style={{
             borderBottom: "1px solid #eee", padding: "12px 0", display: "flex", justifyContent: "space-between", alignItems: "center"
           }}>
             <div>
               <b>{prod.name}</b> <br />
-              <small><b>Precio unidad:</b> <span style={{ color: "#2E8B57" }}>{prod.precio} CLP</span></small>
+              <small>
+                <b>Precio unidad:</b> <span style={{ color: "#2E8B57" }}>{prod.precio} CLP</span>
+                <br />
+                <b>Stock disponible:</b>{" "}
+                <span style={{ color: "#B22222" }}>{stockRemaining}</span>
+              </small>
             </div>
             <div>
               <input type="number"
-                min="1" max={prod.stock || 100}
+                min="1"
+                max={prod.stock}
                 style={{ width: 50, marginRight: 8 }}
                 value={item.qty}
-                onChange={e => onChangeQty(item.id, Number(e.target.value))}
+                onChange={e => handleQtyChange(item.id, Number(e.target.value))}
               />
-              <button onClick={() => onRemove(item.id)} style={{
+              <button onClick={() => handleRemoveItem(item.id)} style={{
                 background: "#8B4513", color: "#fff", border: "none", padding: "4px 7px", borderRadius: 4
               }}>
                 Quitar
@@ -65,7 +120,6 @@ const Cart = ({ carrito, productos, onRemove, onChangeQty, handleCheckout }) => 
       })}
       {carrito.length > 0 && (
         <>
-          {/* Campo cupón descuento */}
           <div style={{ marginTop: 18, marginBottom: 9 }}>
             <label>
               <b>Cupón de descuento:</b>

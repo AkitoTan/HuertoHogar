@@ -1,23 +1,22 @@
 import React, { useState } from "react";
 
-// Puedes extender esta lista si agregas más categorías en tu catálogo
 const categorias = [
   "Todas", "Frutas Frescas", "Verduras Orgánicas", "Productos Orgánicos"
 ];
 
-// Obtiene los orígenes únicos de todos los productos
 const getOrigens = products =>
   [...new Set(products.map(p => p.origen).filter(Boolean))];
 
-const ProductFilter = ({ allProducts, onAddToCart }) => {
+const ProductFilter = ({ allProducts, onAddToCart, stocks = {} }) => {
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");
   const [precioMin, setPrecioMin] = useState("");
   const [precioMax, setPrecioMax] = useState("");
   const [origen, setOrigen] = useState("");
   const [receta, setReceta] = useState(false);
+  const [cantidades, setCantidades] = useState({});
+  const [addMsg, setAddMsg] = useState({});
 
-  // Filtrado avanzado
   const filtrado = allProducts
     .filter(p => !filter || filter === "Todas" || p.category === filter)
     .filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
@@ -28,6 +27,22 @@ const ProductFilter = ({ allProducts, onAddToCart }) => {
 
   const origensOpciones = getOrigens(allProducts);
 
+  const handleQtyChange = (id, value) => {
+    setCantidades(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleAddCart = (prod) => {
+    const cantidad = Math.max(1, Number(cantidades[prod.id] || 1));
+    if (stocks[prod.id] !== undefined && cantidad > stocks[prod.id]) {
+      alert("No hay suficiente stock disponible.");
+      return;
+    }
+    onAddToCart(prod.id, cantidad);
+    setCantidades(prev => ({ ...prev, [prod.id]: 1 })); // Reset input
+    setAddMsg(prev => ({ ...prev, [prod.id]: "¡Agregado con éxito!" }));
+    setTimeout(() => setAddMsg(prev => ({ ...prev, [prod.id]: "" })), 1500);
+  };
+
   return (
     <div style={{
       background: "#f7f7f7", minHeight: "100vh",
@@ -37,6 +52,8 @@ const ProductFilter = ({ allProducts, onAddToCart }) => {
       <div style={{
         display: "flex", gap: 14, marginBottom: 14, flexWrap: "wrap"
       }}>
+        {/* ... (todos tus filtros igual que antes) ... */}
+
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -45,57 +62,23 @@ const ProductFilter = ({ allProducts, onAddToCart }) => {
             padding: "10px 12px", borderRadius: 6, border: "1px solid #aaa", fontSize: 17
           }}
         />
-        <select
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-          style={{
-            padding: "10px 12px", borderRadius: 6, fontSize: 17
-          }}
-        >
-          {categorias.map(cat =>
-            <option key={cat} value={cat}>{cat}</option>
-          )}
+        <select value={filter} onChange={e => setFilter(e.target.value)}
+          style={{ padding: "10px 12px", borderRadius: 6, fontSize: 17 }}>
+          {categorias.map(cat => <option key={cat} value={cat}>{cat}</option>)}
         </select>
-        <input
-          type="number"
-          min={0}
-          placeholder="Precio mínimo"
-          value={precioMin}
-          onChange={e => setPrecioMin(e.target.value)}
-          style={{
-            padding: "8px", borderRadius: 6, width: 100, fontSize: 15
-          }}
-        />
-        <input
-          type="number"
-          min={0}
-          placeholder="Precio máximo"
-          value={precioMax}
-          onChange={e => setPrecioMax(e.target.value)}
-          style={{
-            padding: "8px", borderRadius: 6, width: 100, fontSize: 15
-          }}
-        />
-        <select
-          value={origen}
-          onChange={e => setOrigen(e.target.value)}
-          style={{
-            padding: "8px", borderRadius: 6, fontSize: 15, minWidth: 140
-          }}
-        >
+        <input type="number" min={0} placeholder="Precio mínimo"
+          value={precioMin} onChange={e => setPrecioMin(e.target.value)}
+          style={{ padding: "8px", borderRadius: 6, width: 100, fontSize: 15 }} />
+        <input type="number" min={0} placeholder="Precio máximo"
+          value={precioMax} onChange={e => setPrecioMax(e.target.value)}
+          style={{ padding: "8px", borderRadius: 6, width: 100, fontSize: 15 }} />
+        <select value={origen} onChange={e => setOrigen(e.target.value)}
+          style={{ padding: "8px", borderRadius: 6, fontSize: 15, minWidth: 140 }}>
           <option value="">Origen (todos)</option>
-          {origensOpciones.map(o =>
-            <option key={o} value={o}>{o}</option>
-          )}
+          {origensOpciones.map(o => <option key={o} value={o}>{o}</option>)}
         </select>
-        <label style={{
-          display: "flex", alignItems: "center", fontSize: 15, gap: 5
-        }}>
-          <input
-            type="checkbox"
-            checked={receta}
-            onChange={e => setReceta(e.target.checked)}
-          />
+        <label style={{ display: "flex", alignItems: "center", fontSize: 15, gap: 5 }}>
+          <input type="checkbox" checked={receta} onChange={e => setReceta(e.target.checked)} />
           Sólo con recetas sugeridas
         </label>
       </div>
@@ -141,22 +124,34 @@ const ProductFilter = ({ allProducts, onAddToCart }) => {
               <span style={{ color: "#2E8B57" }}>
                 {prod.precio.toLocaleString()} CLP
               </span>
-              <b> | Stock: </b>{prod.stock}
+              <b> | Stock: </b>
+              {stocks[prod.id] !== undefined ? stocks[prod.id] : prod.stock}
             </p>
-            <button
-              style={{
-                background: "#2E8B57", color: "#FFF", border: "none",
-                padding: "7px 19px", borderRadius: 6, cursor: "pointer",
-                fontWeight: "bold", marginTop: 6
-              }}
-              onClick={() =>
-                onAddToCart ? onAddToCart(prod.id, 1)
-                : alert('Debes estar autenticado para comprar')
-              }
-            >
-              Agregar al carrito
-            </button>
-            {/* Visualización de receta sugerida resumen */}
+            <div style={{ marginTop: 7, display: "flex", alignItems: "center", gap: 6 }}>
+              <input
+                type="number"
+                min={1}
+                max={stocks[prod.id] !== undefined ? stocks[prod.id] : prod.stock}
+                value={cantidades[prod.id] || 1}
+                onChange={e => handleQtyChange(prod.id, Math.max(1, Number(e.target.value)))}
+                style={{ width: 53, borderRadius: 6, border: "1px solid #ccc", padding: "5px 2px" }}
+              />
+              <button
+                style={{
+                  background: "#2E8B57", color: "#FFF", border: "none",
+                  padding: "7px 12px", borderRadius: 6, cursor: "pointer",
+                  fontWeight: "bold"
+                }}
+                onClick={() => handleAddCart(prod)}
+                disabled={stocks[prod.id] !== undefined && (stocks[prod.id] < (cantidades[prod.id] || 1))}
+              >
+                Agregar al carrito
+              </button>
+            </div>
+            {addMsg[prod.id] && (
+              <small style={{ color: "#2E8B57", marginTop: 5, fontWeight: 600 }}>{addMsg[prod.id]}</small>
+            )}
+            {/* Visualización receta sugerida */}
             {prod.recetas && prod.recetas.length > 0 && (
               <div style={{
                 background: "#F5F5DC", color: "#8B4513",
@@ -166,7 +161,6 @@ const ProductFilter = ({ allProducts, onAddToCart }) => {
                 <strong>Receta sugerida:</strong>
                 <br />
                 <span>{prod.recetas[0].nombre || "Ver receta"}</span>
-                {/* Si quieres botón/link: <a href={prod.recetas[0].link}>Ver receta</a> */}
               </div>
             )}
           </div>

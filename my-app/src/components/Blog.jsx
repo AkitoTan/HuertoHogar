@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { collection, getDocs, addDoc, Timestamp } from "firebase/firestore";
-import { db } from "../services/firebase";
+import { db } from "../config/firebase";
 
 // Ejemplo de recetas reales (puedes reemplazar por Firestore o expandir la colección "blog")
 const recetasSugeridas = [

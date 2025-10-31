@@ -5,31 +5,31 @@ import { faUser, faShoppingCart, faBars, faXmark } from "@fortawesome/free-solid
 import { faFacebook, faInstagram, faTwitter, faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 
 const logoSrc = "/img/logo.png";
-const shareUrl = window.location.origin; // URL base de tu tienda
+const shareUrl = window.location.origin;
 
 const Navbar = ({ user }) => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
 
-  // Links principales del menú
+  // Links menú principal
   const links = [
     { to: "/", txt: "Home" },
     { to: "/catalogo", txt: "Productos" },
     { to: "/nosotros", txt: "Nosotros" },
     { to: "/blog", txt: "Blog" },
-    { to: "/perfil", txt: <><FontAwesomeIcon icon={faUser} style={{ marginRight: 7 }} />Perfil</> },
     { to: "/historial", txt: "Historial" },
     { to: "/cart", txt: <><FontAwesomeIcon icon={faShoppingCart} style={{ marginRight: 7 }} />Carrito</> },
     { to: "/condiciones", txt: "Condiciones" }
   ];
-  if (!user) {
-    links.push({ to: "/login", txt: "Iniciar sesión" });
-    links.push({ to: "/register", txt: "Registrarse", color: "#FFD700" });
-  }
-  if (user && user.email === "admin@duoc.cl")
-    links.push({ to: "/admin/orders", txt: "Admin", color: "#FFD700" });
 
-  // SHARE buttons para redes sociales
+  // Links condicionales por usuario
+  if (user) {
+    links.push({ to: "/perfil", txt: <><FontAwesomeIcon icon={faUser} style={{ marginRight: 7 }} />Perfil</>, color: "#2E8B57" });
+    if (user.email === "admin@duoc.cl")
+      links.push({ to: "/admin/orders", txt: "Admin", color: "#FFD700" });
+  }
+
+  // Redes sociales
   const redes = [
     {
       href: `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
@@ -74,11 +74,11 @@ const Navbar = ({ user }) => {
 
   return (
     <nav style={navBase}>
-      {/* Logo que lleva al home */}
+      {/* Logo Home */}
       <Link to="/" style={{ marginLeft: 16, marginRight: 18 }}>
         <img src={logoSrc} alt="HuertoHogar Logo" style={{ height: 36, verticalAlign: "middle" }} />
       </Link>
-      {/* Share/Social icons siempre visibles */}
+      {/* Redes sociales */}
       <div style={{ display: "flex", gap: 12, marginRight: 19 }}>
         {redes.map(({ href, icon, title, color }, idx) => (
           <a key={title} href={href} target="_blank" rel="noopener noreferrer" title={title}
@@ -87,7 +87,7 @@ const Navbar = ({ user }) => {
           </a>
         ))}
       </div>
-      {/* Botón hamburguesa responsivo */}
+      {/* Hamburger */}
       <button
         style={{
           background: "none", border: "none", fontSize: "2em", display: "none",
@@ -98,7 +98,7 @@ const Navbar = ({ user }) => {
       >
         {open ? <FontAwesomeIcon icon={faXmark} /> : <FontAwesomeIcon icon={faBars} />}
       </button>
-      {/* Links responsivos */}
+      {/* Links principales */}
       <div style={{
         ...navContent,
         ...(window.innerWidth < 900 ? {
@@ -123,8 +123,17 @@ const Navbar = ({ user }) => {
             onClick={() => setOpen(false)}
           >{txt}</Link>
         ))}
+        {/* Si NO está autenticado: solo icono login */}
+        {!user && (
+          <Link to="/auth" style={{
+            color: "#2E8B57", marginLeft: 11, fontSize: 22, background: "#f7f7f7",
+            padding: "4px 9px", borderRadius: 7
+          }} title="Login / Registro">
+            <FontAwesomeIcon icon={faUser} />
+          </Link>
+        )}
       </div>
-      {/* Botón hamburguesa CSS media */}
+      {/* Media queries Botón hamburguesa */}
       <style>
         {`
           @media (max-width:900px){
